@@ -1,58 +1,87 @@
 'use strict';
 
 angular.module('lasrboxApp')
-  .controller('LasrBoxInitCtrl', function ($scope,$http) {
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  .controller('LasrBoxInitCtrl', function ($scope,$http,Queue) {
 
-    var peer = new Peer('my-cat-video',{key: 'kdo8ub4k13rnqaor'});
+  var peer = new Peer('my-cat-video',{key: 'lwjd5qra8257b9'});
 
-    peer.on('open', function(){
 
-        $('#my-id').text(peer.id);
-        navigator.getUserMedia({video: true, audio: true}, function(stream) {
-         // Set your video displays
-          $('#my-video').prop('src', URL.createObjectURL(stream));
 
-          window.localStream = stream;
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  navigator.getUserMedia({video: true, audio: true}, function(stream) {
 
-        }, function(){ $('#step1-error').show(); });
+          peer.on('open', function(id) {
+            console.log('My peer ID is: ' + id);
+          });
+
+          peer.on('connection', function(conn) {
+               //Call the newly connected peer
+              var call = peer.call(conn.peer, stream);
+
+              // Send messages
+              conn.send('Successfully Connected!');
+
+              //Log Connection info
+              console.log('connected to',conn.peer);
+              console.log('connections', peer.connections);
+
+              Queue.addPeer(conn.peer);
+              console.log('queue', Queue.list());
+
+              console.log(typeof broadcastQueue, 'broadcast')
+              Queue.startTimer(function(){broadcastQueue()});
+
+
+              //Connection open
+              conn.on('open', function() {
+
+                  broadcastQueue();
+                  // Receive messages
+                  conn.on('data', function(data) {
+
+                      if(conn.peer === Queue.list()[0]){
+                          console.log('This is the controller');
+                          console.log('Send Post to Server');
+                      }
+
+
+
+                      console.log('Received', data, 'from', conn.peer);
+
+                  });
+
+
+
+              });
+
+              //When a pear exists or is closed
+              conn.on('close', function() {
+
+                  console.log(conn.peer, ' closed');
+
+                  //Remove peer them from the queue
+                  Queue.removePeer(conn.peer);
+
+                  broadcastQueue();
+
+              });
+
+
+          });
+
+      }, function(err) {
+          console.log('Failed to get local stream' ,err);
       });
 
-      //On connected to controller peer
-      peer.on('connection', function(conn) {
 
-        conn.on('open', function() {
-          //On connection call peer
-          var call = peer.call(conn.peer, window.localStream);
-            // Receive messages
-            conn.on('data', function(data) {
-            console.log('Received', data);
+      var broadcastQueue = function(){
+            //For each connection to peer, send back queue status
+            for(var key in peer.connections){
+                peer.connections[key][0].send({queue: Queue.list()});
+            }
 
-            $http.post('/api/lasrboxs/', {data:data}).
-                success(function(data, status, headers, config) {
-                  // this callback will be called asynchronously
-                  // when the response is available
-                }).
-                error(function(data, status, headers, config) {
-                  // called asynchronously if an error occurs
-                  // or server returns response with an error status.
-                });
-            });
-          });
+        };
 
-          conn.on('close', function() {
-            console.log('closed')
-            $http.post('/api/lasrboxs/', {data:{servoX:0,servoY:0,laserOn:false}}).
-                success(function(data, status, headers, config) {
-                  // this callback will be called asynchronously
-                  // when the response is available
-                }).
-                error(function(data, status, headers, config) {
-                  // called asynchronously if an error occurs
-                  // or server returns response with an error status.
-                });
-          });
 
-    });
 
   });

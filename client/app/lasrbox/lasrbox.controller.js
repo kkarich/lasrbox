@@ -18,38 +18,48 @@ angular.module('lasrboxApp')
       $scope.toggled = !$scope.toggled;
     };
 
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    $scope.myId = '';
+		$scope.position = 0;
 
-    var peer = new Peer('cat-controller',{key: 'kdo8ub4k13rnqaor'});
+		var peer = new Peer({key: 'lwjd5qra8257b9'});
 
-    // init connection
-    var conn = peer.connect('my-cat-video');
-
-    conn.on('open', function() {
-
-      conn.send($scope.cattoyInfo);
-      // Receive messages
-      conn.on('data', function(data) {
-        console.log('Received', data);
-      });
-
-    });
-
-
-
-    peer.on('call', function(call) {
-
-        // Answer the call without providing data
-        call.answer(null);
-        $scope.loading = false;
-        $scope.$apply();
-        call.on('stream', function(remoteStream) {
-          // Show stream in some video element.
-
-
-          $('#cat-video').prop('src', URL.createObjectURL(remoteStream));
+		peer.on('open', function(id) {
+          console.log('My peer ID is: ' + id);
+          $scope.myId = id;
+          $scope.$apply();
         });
-    });
+
+        var conn = peer.connect('my-cat-video');
+
+        conn.on('open', function() {
+          // Send messages
+            conn.send('Hello!');
+
+            conn.on('data', function(data) {
+                if(data === $scope.myId){
+                    console.log('I am the controller');
+                }
+                console.log('Received', data);
+                $scope.position = data.queue.indexOf($scope.myId) + 1;
+                $scope.$apply();
+            });
+
+        });
+
+
+            peer.on('call', function(call) {
+                 console.log($scope.video_src,'test')
+                call.answer(null); // Answer the call with an A/V stream.
+                call.on('stream', function(remoteStream) {
+                  // Show stream in some <video> element.
+
+                 document.getElementById("cat-video").src =  URL.createObjectURL(remoteStream);
+                 console.log($scope.video_src,document.getElementById("cat-video"))
+                });
+
+            });
+
+
 
 
 
