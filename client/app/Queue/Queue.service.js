@@ -45,7 +45,7 @@ angular.module('lasrboxApp').factory('Queue', ['$timeout',
               Queue.peers.splice(0,1);
 
               broadcastQueue()
-              Queue.startTimer();
+              Queue.startTimer(broadcastQueue);
     };
     Queue.list = function() {
       return Queue.peers;
