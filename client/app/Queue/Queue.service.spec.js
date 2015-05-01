@@ -8,9 +8,11 @@ describe('Service: Queue', function () {
   // instantiate service
   var Queue;
   var $timeout;
+
   beforeEach(inject(function (_Queue_,_$timeout_) {
     Queue = _Queue_;
     $timeout = _$timeout_;
+
   }));
 
   it('addPeer() should add a peer to Queue.peers array', function () {
@@ -84,8 +86,9 @@ describe('Service: Queue', function () {
   it('timesUp() shoud call broadcast que and startTimer', function () {
 
     spyOn(Queue, 'startTimer');
-    broadcastQueue = jasmine.createSpy();
+
     var broadcastQueue = function(){};
+    broadcastQueue = jasmine.createSpy();
     Queue.timesUp(broadcastQueue);
 
     expect(Queue.startTimer).toHaveBeenCalled();
