@@ -16,6 +16,21 @@ describe('Controller: LasrBoxInitCtrl', function () {
   }));
 
   it('should ...', function () {
-    expect(1).toEqual(1);
+    expect(1).toEqual(2);
   });
 });
+
+var navigator = {
+  getUserMedia : function(){}
+}
+
+function Peer(){
+  this.on = function(){};
+  this.connect = function(){
+      return new Conn();
+
+  };
+};
+function Conn(){
+  this.on = function(){};
+};
