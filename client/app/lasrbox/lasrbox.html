@@ -37,15 +37,19 @@
           <div class="container-fluid">
               <div class="row">
                 <a ng-click = "toggle()"  id="menu-toggle">
-                  <i ng-show = "toggled" class="fa fa-chevron-right"></i>
-                  <i ng-hide = "toggled"  class="fa fa-times"></i>
+                  <i ng-hide = "toggled" class="fa fa-chevron-right"></i>
+                  <i ng-show = "toggled"  class="fa fa-times"></i>
                   </a>
 
 
 <div class="col-lg-12">
                     <center><i ng-if = "loading" class="fa fa-spin fa-spinner fa-3x"></i></center>
+                    <center ng-hide="loading">
+                      <h3 ng-show="position > 1">Your position in the Queue: {{position}}</h3>
+                      <h3 ng-show="position == 1">It's your turn!</h3>
+                      </center>
                   <div>
-                    {{position}}
+
                   <video id="cat-video" class=" col-sm-offset-3 col-sm-6 col-xs-12" autoplay="" ng-mousemove="onMouseMove($event)"></video>
                 </div>
                   </div>

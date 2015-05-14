@@ -12,7 +12,7 @@ angular.module('lasrboxApp')
     $scope.minY = 0;
     $scope.maxY = 180;
     $scope.loading = true;
-    $scope.toggled = true;
+    $scope.toggled = false;
 
     $scope.toggle = function(){
       $scope.toggled = !$scope.toggled;
@@ -49,6 +49,8 @@ angular.module('lasrboxApp')
 
             peer.on('call', function(call) {
                  console.log($scope.video_src,'test')
+                 $scope.loading = false;
+                 $scope.$apply();
                 call.answer(null); // Answer the call with an A/V stream.
                 call.on('stream', function(remoteStream) {
                   // Show stream in some <video> element.
